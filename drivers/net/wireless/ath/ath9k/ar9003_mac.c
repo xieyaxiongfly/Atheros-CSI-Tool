@@ -151,7 +151,7 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
 		| set11nRateFlags(i->rates, 3)
 		| SM(i->rtscts_rate, AR_RTSCTSRate);
 
-	ACCESS_ONCE(ads->ctl19) = AR_Not_Sounding;
+	ACCESS_ONCE(ads->ctl19) = ~AR_Not_Sounding;
 
 	ACCESS_ONCE(ads->ctl20) = SM(i->txpower[1], AR_XmitPower1);
 	ACCESS_ONCE(ads->ctl21) = SM(i->txpower[2], AR_XmitPower2);
