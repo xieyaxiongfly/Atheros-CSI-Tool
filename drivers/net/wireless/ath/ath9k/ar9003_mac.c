@@ -483,6 +483,9 @@ int ath9k_hw_process_rxdesc_edma(struct ath_hw *ah, struct ath_rx_status *rxs,
 {
 	struct ar9003_rxs *rxsp = (struct ar9003_rxs *) buf_addr;
 	unsigned int phyerr;
+    u_int8_t rx_not_sounding;
+	void *data_addr;
+    u_int16_t data_len;
 
 	if ((rxsp->status11 & AR_RxDone) == 0)
 		return -EINPROGRESS;
@@ -578,26 +581,45 @@ int ath9k_hw_process_rxdesc_edma(struct ath_hw *ah, struct ath_rx_status *rxs,
 			}
 		}
 	}
-
-	if (rxsp->status11 & AR_KeyMiss)
+   
+    if (rxsp->status11 & AR_KeyMiss)
 		rxs->rs_status |= ATH9K_RXERR_KEYMISS;
-	void *data_addr;
-    	u_int16_t data_len;
+    
+    data_len = rxs->rs_datalen;
+    data_addr = buf_addr + 48;
+    
+    rx_not_sounding = (rxsp->status4 & AR_rx_not_sounding) ? 1 : 0;
+    if (rx_not_sounding == 0){
+        printk("debug_csi_sounding: is sounding frame !!!!!\n");
+        printk("bebug_csi_sounding: rate is %02x \n",rxs->rs_rate);
+        printk("bebug_csi_sounding: not_sounding is %d \n",rx_not_sounding);
+        printk("bebug_csi_sounding: datalen is %d \n\n",data_len);
+    }
+    if (rxs->rs_rate >= 0x80){
+        printk("debug_csi_sounding: recevie frame with rate larger than 0x80 !!!!!!\n");
+        printk("bebug_csi_sounding: rate is %02x \n",rxs->rs_rate);
+        printk("bebug_csi_sounding: not_sounding is %d \n",rx_not_sounding);
+        printk("bebug_csi_sounding: datalen is %d \n\n",data_len);
+    }
 
-    	data_len = rxs->rs_datalen;
-    	data_addr = buf_addr + 48;
+    if (data_len > 1000){
+        printk("debug_csi_sounding: recevie frame with length larger than 1000bytes !!!!!\n");
+        printk("bebug_csi_sounding: rate is %02x \n",rxs->rs_rate);
+        printk("bebug_csi_sounding: not_sounding is %d \n",rx_not_sounding);
+        printk("bebug_csi_sounding: datalen is %d \n \n",data_len);
+    }
 
-        if (rxsp->status11 & AR_CRCErr){
-        	if (rxs->rs_rate >= 0x80){
-            		csi_record_payload(data_addr,data_len);
-            		csi_record_status(ah,rxs,rxsp,data_addr);
-        	}
-    	}else{
-        	if  (rxs->rs_more == 1)
-            		csi_record_payload(data_addr,data_len);
+    if (rxsp->status11 & AR_CRCErr){
+        if (rxs->rs_rate >= 0x80){
+            csi_record_payload(data_addr,data_len);
+            csi_record_status(ah,rxs,rxsp,data_addr);
+        }
+    }else{
+        if  (rxs->rs_more == 1)
+            csi_record_payload(data_addr,data_len);
 
-        	if (rxs->rs_rate >= 0x80)
-            		csi_record_status(ah,rxs,rxsp,data_addr);
+        if (rxs->rs_rate >= 0x80)
+            csi_record_status(ah,rxs,rxsp,data_addr);
 	}
 
 	return 0;
