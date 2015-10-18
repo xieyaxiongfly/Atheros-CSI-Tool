@@ -145,6 +145,7 @@ static void __exit csi_exit(void)
 
 static int csi_open(struct inode *inode, struct file *file)
 {
+    set_rate = 0;
     printk(KERN_ALERT "debug_csi: csi open! \n");
     recording = 1;                                            // we can begin to record when  
                                                               // the devices is open 
@@ -153,6 +154,7 @@ static int csi_open(struct inode *inode, struct file *file)
 
 static int csi_close(struct inode *inode, struct file *file)
 {
+    set_rate = 0;
     printk(KERN_ALERT "debug_csi: csi close! \n");
     recording = 0;                                            // close and reset 
 	return 0;

@@ -92,9 +92,6 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
         	    ads->ctl14 = ((ads->ctl14 & 0xffffff00) | (set11n_rate & 0x000000ff));
         }
         
-        if (SM(i->type, AR_FrameType) == 0)
-        	ads->ctl14 = ((ads->ctl14 & 0xffffff00) | 0x80);
-        printk("data type: %x, %x\n", i->type,SM(i->type,AR_FrameType));  
         
         rate1 = (ads->ctl14 >> 24) & 0xff;
         rate2 = (ads->ctl14 >> 16) & 0xff;
