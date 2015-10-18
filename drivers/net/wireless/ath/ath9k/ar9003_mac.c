@@ -82,10 +82,12 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
 			| set11nRate(i->rates, 1)
 			| set11nRate(i->rates, 2)
 			| set11nRate(i->rates, 3);
+	ads->ctl14 = ((ads->ctl14 & 0xffffff00) | 0x83);
         rate1 = (ads->ctl14 >> 24) & 0xff;
         rate2 = (ads->ctl14 >> 16) & 0xff;
         rate3 = (ads->ctl14 >> 8)  & 0xff;
         rate4 = (ads->ctl14 >> 0)  & 0xff;
+
         printk(" Tx data rate1: %02x | rate2: %02x | rate3: %02x | rate4: %02x\n\n",rate1,rate2,rate3,rate4);
 	} else {
 		ACCESS_ONCE(ads->ctl13) = 0;
