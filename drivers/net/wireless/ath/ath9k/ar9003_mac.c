@@ -82,7 +82,10 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
 			| set11nRate(i->rates, 1)
 			| set11nRate(i->rates, 2)
 			| set11nRate(i->rates, 3);
-	ads->ctl14 = ((ads->ctl14 & 0xffffff00) | 0x83);
+        
+        if (SM(i->type, AR_FrameType) == 0)
+        	ads->ctl14 = ((ads->ctl14 & 0xffffff00) | 0x83);
+        
         rate1 = (ads->ctl14 >> 24) & 0xff;
         rate2 = (ads->ctl14 >> 16) & 0xff;
         rate3 = (ads->ctl14 >> 8)  & 0xff;
