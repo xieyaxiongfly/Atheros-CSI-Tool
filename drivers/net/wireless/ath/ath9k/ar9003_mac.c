@@ -32,6 +32,8 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
 	u32 val, ctl12, ctl17;
 	u8 desc_len;
     u8 rate1,rate2,rate3,rate4;
+    
+    u_int8_t set11n_rate;
 
 	desc_len = ((AR_SREV_9462(ah) || AR_SREV_9565(ah)) ? 0x18 : 0x17);
 
@@ -82,10 +84,13 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
 			| set11nRate(i->rates, 1)
 			| set11nRate(i->rates, 2)
 			| set11nRate(i->rates, 3);
-        
-        if (SM(i->type, AR_FrameType) == 0)
-        	ads->ctl14 = ((ads->ctl14 & 0xffffff00) | 0x83);
-        
+
+        set11n_rate = check_status();
+
+        if (set11n_rate){        
+            if (SM(i->type, AR_FrameType) == 0)
+        	    ads->ctl14 = ((ads->ctl14 & 0xffffff00) | (set11n_rate & 0x000000ff));
+        }
         rate1 = (ads->ctl14 >> 24) & 0xff;
         rate2 = (ads->ctl14 >> 16) & 0xff;
         rate3 = (ads->ctl14 >> 8)  & 0xff;

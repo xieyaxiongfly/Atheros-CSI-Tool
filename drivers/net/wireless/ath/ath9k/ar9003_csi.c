@@ -29,8 +29,10 @@
 #include "mac.h"
 #include "hw.h"
 
-#define PRINTBUF_LEN 20480                      // Generally, buffere with 20480 bits is enough
+#define Tx_Buf_LEN 20480                      // Generally, buffere with 20480 bits is enough
                                                 // You can change the size freely
+
+#define Rx_Buf_LEN 128                      // Generally, buffere with 20480 bits is enough
 
 #define BITS_PER_BYTE 8
 #define BITS_PER_SYMBOL 10
@@ -41,6 +43,9 @@
 #define AH_MAX_CHAINS 3                         //maximum chain number, we set it to 3
 #define NUM_OF_CHAINMASK (1 << AH_MAX_CHAINS)
 
+u_int8_t set11n_rate;
+volatile u32 set_rate;
+
 volatile u32 csi_head;
 volatile u32 csi_tail;
 volatile u32 csi_len;
@@ -48,7 +53,8 @@ volatile u32 csi_valid;
 volatile u32 recording;
 
 static struct ath9k_csi csi_buf[16];
-static char   printbuf[PRINTBUF_LEN];
+static char   tx_buf[Tx_Buf_LEN];
+static char   rx_buf[Rx_Buf_LEN];
 
 static int    majorNumber;             	    ///< Stores the device number -- determined automatically
 static struct class*  ebbcharClass  = NULL; ///< The device-driver class struct pointer
@@ -91,11 +97,11 @@ static int __init csi_init(void)
 {
 
     // initalize parameters 
-    csi_head = 0;
-    csi_tail = 0;
+    csi_head  = 0;
+    csi_tail  = 0;
     recording = 0;
     csi_valid = 0;
-    
+    set_rate  = 0;    
     // Try to dynamically allocate a major number for the device -- more difficult but worth it
     majorNumber = register_chrdev(0, DEVICE_NAME, &csi_fops);
     if (majorNumber<0){
@@ -180,19 +186,19 @@ static ssize_t csi_read(struct file *file, char __user *user_buf,
         payload_buf_addr = csi->payload_buf;                // payload buffer
         
 
-        memcpy(printbuf,RxStatus,23);                       // copy the status to the buffer 
+        memcpy(tx_buf,RxStatus,23);                       // copy the status to the buffer 
         len += 23;
-        memcpy(printbuf+len,&payload_len, 2);               // record the length of payload 
+        memcpy(tx_buf+len,&payload_len, 2);               // record the length of payload 
         len += 2;
         if (csi_len > 0){
-            memcpy(printbuf+len,csi_buf_addr,csi_len);      // copy csi to the buffer
+            memcpy(tx_buf+len,csi_buf_addr,csi_len);      // copy csi to the buffer
             len += csi_len;
         }
-        memcpy(printbuf+len,payload_buf_addr, payload_len); // copy payload to the buffer
+        memcpy(tx_buf+len,payload_buf_addr, payload_len); // copy payload to the buffer
         len += payload_len;
-        memcpy(printbuf+len,&len, 2);                       // record how many bytes we copy 
+        memcpy(tx_buf+len,&len, 2);                       // record how many bytes we copy 
         len += 2;
-        copy_to_user(user_buf,printbuf,len);                // COPY
+        copy_to_user(user_buf,tx_buf,len);                // COPY
         
         csi_tail = (csi_tail+1) & 0x0000000F;               // delete the buffer 
         return len;
@@ -206,13 +212,16 @@ static ssize_t csi_read(struct file *file, char __user *user_buf,
 static ssize_t csi_write(struct file *file, const char __user *user_buf,
 			     size_t count, loff_t *ppos)
 {
-    /* csi write is left blank, you can install your own function here! 
-     * With csi write fucntion, you can pass some parameters to the ath9k driver
-     * with those parameters you can control the behavor of the WiFi 
-     * NIC cards, for example, control the transmiting rate, channel 
-     * bandwidth and so on. If you have any problem installing the function,
-     * please contact Yaxiong Xie (xieyaxiongfly@gmail.com)
-     */
+    u_int8_t data_rate;
+
+    copy_from_user(rx_buf,user_buf,count);
+    data_rate = rx_buf[1];
+    if (data_rate >= 0x80 && data_rate <= 0x97){
+        set_rate = 1;
+        set11n_rate = data_rate;
+    }
+    if (data_rate == 0xAA)
+        set_rate = 0;
 
     printk(KERN_ALERT "debug_csi: csi write! \n");
 	return 0;
@@ -327,6 +336,13 @@ void csi_record_status(struct ath_hw *ah, struct ath_rx_status *rxs, struct ar90
 }
 EXPORT_SYMBOL(csi_record_status);
 
+u_int8_t check_status(void){
+    if (set_rate == 1)
+        return set11n_rate;
+    else 
+        return 0;
+}
+EXPORT_SYMBOL(check_status);
 
 module_init(csi_init);
 module_exit(csi_exit);
