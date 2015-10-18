@@ -31,6 +31,7 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
 	int checksum = 0;
 	u32 val, ctl12, ctl17;
 	u8 desc_len;
+    u8 rate1,rate2,rate3,rate4;
 
 	desc_len = ((AR_SREV_9462(ah) || AR_SREV_9565(ah)) ? 0x18 : 0x17);
 
@@ -62,11 +63,14 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
 	ACCESS_ONCE(ads->ctl7) = val;
 	checksum += (val = (i->buf_len[3] << AR_BufLen_S) & AR_BufLen);
 	ACCESS_ONCE(ads->ctl9) = val;
+    
+    printk(" Tx data len1: %d | len2: %d | len3: %d | len4: %d\n",i->buf_len[0],i->buf_len[1],i->buf_len[2],i->buf_len[3]);
 
 	checksum = (u16) (((checksum & 0xffff) + (checksum >> 16)) & 0xffff);
 	ACCESS_ONCE(ads->ctl10) = checksum;
 
 	if (i->is_first || i->is_last) {
+
 		ACCESS_ONCE(ads->ctl13) = set11nTries(i->rates, 0)
 			| set11nTries(i->rates, 1)
 			| set11nTries(i->rates, 2)
@@ -78,6 +82,11 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
 			| set11nRate(i->rates, 1)
 			| set11nRate(i->rates, 2)
 			| set11nRate(i->rates, 3);
+        rate1 = (ads->ctl14 >> 24) & 0xff;
+        rate2 = (ads->ctl14 >> 16) & 0xff;
+        rate3 = (ads->ctl14 >> 8)  & 0xff;
+        rate4 = (ads->ctl14 >> 0)  & 0xff;
+        printk(" Tx data rate1: %02x | rate2: %02x | rate3: %02x | rate4: %02x\n\n",rate1,rate2,rate3,rate4);
 	} else {
 		ACCESS_ONCE(ads->ctl13) = 0;
 		ACCESS_ONCE(ads->ctl14) = 0;
