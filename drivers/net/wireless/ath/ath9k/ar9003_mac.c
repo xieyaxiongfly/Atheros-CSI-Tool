@@ -84,6 +84,7 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
 			| set11nRate(i->rates, 1)
 			| set11nRate(i->rates, 2)
 			| set11nRate(i->rates, 3);
+<<<<<<< HEAD
 
         set11n_rate = check_status();
 
@@ -91,6 +92,12 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
             if (SM(i->type, AR_FrameType) == 0)
         	    ads->ctl14 = ((ads->ctl14 & 0xffffff00) | (set11n_rate & 0x000000ff));
         }
+=======
+        
+        if (SM(i->type, AR_FrameType) == 0)
+        	ads->ctl14 = ((ads->ctl14 & 0xffffff00) | 0x80);
+        printk("data type: %x, %x\n", i->type,SM(i->type,AR_FrameType));  
+>>>>>>> 2eca58244172766b64b2bf6af705c5029b98a0bb
         rate1 = (ads->ctl14 >> 24) & 0xff;
         rate2 = (ads->ctl14 >> 16) & 0xff;
         rate3 = (ads->ctl14 >> 8)  & 0xff;
