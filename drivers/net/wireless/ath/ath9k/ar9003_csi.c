@@ -44,7 +44,8 @@
 #define NUM_OF_CHAINMASK (1 << AH_MAX_CHAINS)
 
 u_int8_t set11n_rate;
-volatile u32 set_rate;
+//volatile u32 set_rate;
+int set_rate;
 
 volatile u32 csi_head;
 volatile u32 csi_tail;
@@ -217,7 +218,9 @@ static ssize_t csi_write(struct file *file, const char __user *user_buf,
     u_int8_t data_rate;
 
     copy_from_user(rx_buf,user_buf,count);
+
     data_rate = rx_buf[1];
+    printk(KERN_ALERT "debug_csi:data num: %d, data_rate we read: %02x\n",count,data_rate);
     if (data_rate >= 0x80 && data_rate <= 0x97){
         set_rate = 1;
         set11n_rate = data_rate;
@@ -225,7 +228,6 @@ static ssize_t csi_write(struct file *file, const char __user *user_buf,
     if (data_rate == 0xAA)
         set_rate = 0;
 
-    printk(KERN_ALERT "debug_csi: csi write! \n");
 	return 0;
 }
 
@@ -338,11 +340,13 @@ void csi_record_status(struct ath_hw *ah, struct ath_rx_status *rxs, struct ar90
 }
 EXPORT_SYMBOL(csi_record_status);
 
-u_int8_t check_status(void){
-    if (set_rate == 1)
+int check_status(void){
+/*    if (set_rate == 1)
         return set11n_rate;
     else 
         return 0;
+*/
+   return set_rate;
 }
 EXPORT_SYMBOL(check_status);
 

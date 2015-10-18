@@ -33,7 +33,8 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
 	u8 desc_len;
     u8 rate1,rate2,rate3,rate4;
     
-    u_int8_t set11n_rate;
+    //u_int8_t set11n_rate;
+    int set11n_rate;
 
 	desc_len = ((AR_SREV_9462(ah) || AR_SREV_9565(ah)) ? 0x18 : 0x17);
 
@@ -66,7 +67,7 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
 	checksum += (val = (i->buf_len[3] << AR_BufLen_S) & AR_BufLen);
 	ACCESS_ONCE(ads->ctl9) = val;
     
-    printk(" Tx data len1: %d | len2: %d | len3: %d | len4: %d\n",i->buf_len[0],i->buf_len[1],i->buf_len[2],i->buf_len[3]);
+     	//printk(" Tx data len1: %d | len2: %d | len3: %d | len4: %d\n",i->buf_len[0],i->buf_len[1],i->buf_len[2],i->buf_len[3]);
 
 	checksum = (u16) (((checksum & 0xffff) + (checksum >> 16)) & 0xffff);
 	ACCESS_ONCE(ads->ctl10) = checksum;
@@ -88,8 +89,11 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
         set11n_rate = check_status();
 
         if (set11n_rate){        
-            if (SM(i->type, AR_FrameType) == 0)
-        	    ads->ctl14 = ((ads->ctl14 & 0xffffff00) | (set11n_rate & 0x000000ff));
+            if (SM(i->type, AR_FrameType) == 0){
+        	    ads->ctl14 = ((ads->ctl14 & 0xffffff00) | (set11n_rate & 0x00000080));
+		    //printk(" Rate is set, set11n_rate is %02x \n",set11n_rate);
+		    printk(" Rate is set\n");
+		}
         }
         
         
@@ -98,7 +102,7 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
         rate3 = (ads->ctl14 >> 8)  & 0xff;
         rate4 = (ads->ctl14 >> 0)  & 0xff;
 
-        printk(" Tx data rate1: %02x | rate2: %02x | rate3: %02x | rate4: %02x\n\n",rate1,rate2,rate3,rate4);
+        //printk(" Tx data rate1: %02x | rate2: %02x | rate3: %02x | rate4: %02x\n\n",rate1,rate2,rate3,rate4);
 	} else {
 		ACCESS_ONCE(ads->ctl13) = 0;
 		ACCESS_ONCE(ads->ctl14) = 0;
