@@ -6,12 +6,11 @@
  *    Description:  extrac csi and data together from hardware
  *
  *        Version:  1.0
- *        Created:  14/12/2013 22:55:47
- *       Revision:  none
- *       Compiler:  gcc
  *
- *         Author:  Yaxiong Xie xieyaxiongfly@gmail.com, 
+ *         Author:  Yaxiong Xie 
+ *         Email :  xieyaxiongfly@gmail.com 
  *   Organization:  WANDS group @ Nanyang Technological University 
+ *   Copyright (c) Yaxiong Xie <xieyaxiongfly@gmail.com>
  *
  * =====================================================================================
  */
@@ -29,53 +28,50 @@
 #include "mac.h"
 #include "hw.h"
 
-#define Tx_Buf_LEN 20480                      // Generally, buffere with 20480 bits is enough
-                                                // You can change the size freely
+#define Tx_Buf_LEN      20480                 // Generally, buffere with 20480 bits is enough
+                                              // You can change the size freely
 
-#define Rx_Buf_LEN 128                      // Generally, buffere with 20480 bits is enough
+//#define Rx_Buf_LEN      128                   // Generally, buffere with 20480 bits is enough
 
-#define BITS_PER_BYTE 8
+#define BITS_PER_BYTE   8
 #define BITS_PER_SYMBOL 10
 #define BITS_PER_COMPLEX_SYMBOL  (2 * BITS_PER_SYMBOL)
 
-#define DEVICE_NAME "CSI_dev"
-#define CLASS_NAME "CSI_class"
-#define AH_MAX_CHAINS 3                         //maximum chain number, we set it to 3
+#define DEVICE_NAME     "CSI_dev"
+#define CLASS_NAME      "CSI_class"
+#define AH_MAX_CHAINS   3                     //maximum chain number, we set it to 3
 #define NUM_OF_CHAINMASK (1 << AH_MAX_CHAINS)
 
-u_int8_t set11n_rate;
-//volatile u32 set_rate;
-int set_rate;
 
-volatile u32 csi_head;
-volatile u32 csi_tail;
-volatile u32 csi_len;
-volatile u32 csi_valid;
-volatile u32 recording;
+volatile u32        csi_head;
+volatile u32        csi_tail;
+volatile u32        csi_len;
+volatile u32        csi_valid;
+volatile u32        recording;
 
-static struct ath9k_csi csi_buf[16];
-static char   tx_buf[Tx_Buf_LEN];
-static char   rx_buf[Rx_Buf_LEN];
+static struct       ath9k_csi csi_buf[16];
+static char         tx_buf[Tx_Buf_LEN];
+//static char         rx_buf[Rx_Buf_LEN];
 
-static int    majorNumber;             	    ///< Stores the device number -- determined automatically
-static struct class*  ebbcharClass  = NULL; ///< The device-driver class struct pointer
-static struct device* ebbcharDevice = NULL; ///< The device-driver device struct pointer
+static int          majorNumber;             	  
+static struct       class*  ebbcharClass  = NULL; 
+static struct       device* ebbcharDevice = NULL; 
 
 DECLARE_WAIT_QUEUE_HEAD(csi_queue);
 
-static int     csi_open(struct inode *inode, struct file *file);
-static int     csi_close(struct inode *inode, struct file *file);
-static ssize_t csi_read(struct file *file, char __user *user_buf,
-				      size_t count, loff_t *ppos);
-static ssize_t csi_write(struct file *file, const char __user *user_buf,
-			     size_t count, loff_t *ppos);
+static int          csi_open(struct inode *inode, struct file *file);
+static int          csi_close(struct inode *inode, struct file *file);
+static ssize_t      csi_read(struct file *file, char __user *user_buf,
+				        size_t count, loff_t *ppos);
+static ssize_t      csi_write(struct file *file, const char __user *user_buf,
+			            size_t count, loff_t *ppos);
 
 static const struct file_operations csi_fops = {
-	.read    = csi_read,
-	.write   = csi_write,
-	.open    = csi_open,
-    .release = csi_close,
-	.llseek  = default_llseek,
+	.read           = csi_read,
+	.write          = csi_write,
+	.open           = csi_open,
+    .release        = csi_close,
+	.llseek         = default_llseek,
 };
 
 static u_int8_t Num_bits_on[NUM_OF_CHAINMASK] = {
@@ -98,11 +94,11 @@ static int __init csi_init(void)
 {
 
     // initalize parameters 
-    csi_head  = 0;
-    csi_tail  = 0;
-    recording = 0;
-    csi_valid = 0;
-    set_rate  = 0;    
+    csi_head    = 0;
+    csi_tail    = 0;
+    recording   = 0;
+    csi_valid   = 0;
+    
     // Try to dynamically allocate a major number for the device -- more difficult but worth it
     majorNumber = register_chrdev(0, DEVICE_NAME, &csi_fops);
     if (majorNumber<0){
@@ -146,7 +142,6 @@ static void __exit csi_exit(void)
 
 static int csi_open(struct inode *inode, struct file *file)
 {
-    set_rate = 0;
     printk(KERN_ALERT "debug_csi: csi open! \n");
     recording = 1;                                            // we can begin to record when  
                                                               // the devices is open 
@@ -155,7 +150,6 @@ static int csi_open(struct inode *inode, struct file *file)
 
 static int csi_close(struct inode *inode, struct file *file)
 {
-    set_rate = 0;
     printk(KERN_ALERT "debug_csi: csi close! \n");
     recording = 0;                                            // close and reset 
 	return 0;
@@ -181,7 +175,7 @@ static ssize_t csi_read(struct file *file, char __user *user_buf,
         csi = (struct ath9k_csi*)&csi_buf[csi_tail];
         len = 0;
         
-        RxStatus = &(csi->pkt_status);                      // the status struct
+        RxStatus         = &(csi->pkt_status);              // the status struct
         
         csi_len          = RxStatus->csi_len;               // csi length (bytes) 
         csi_buf_addr     = csi->csi_buf;                    // csi buffer 
@@ -189,51 +183,39 @@ static ssize_t csi_read(struct file *file, char __user *user_buf,
         payload_buf_addr = csi->payload_buf;                // payload buffer
         
 
-        memcpy(tx_buf,RxStatus,23);                       // copy the status to the buffer 
+        memcpy(tx_buf,RxStatus,23);                         // copy the status to the buffer 
         len += 23;
-        memcpy(tx_buf+len,&payload_len, 2);               // record the length of payload 
+        
+        memcpy(tx_buf+len,&payload_len, 2);                 // record the length of payload 
         len += 2;
+        
         if (csi_len > 0){
-            memcpy(tx_buf+len,csi_buf_addr,csi_len);      // copy csi to the buffer
+            memcpy(tx_buf+len,csi_buf_addr,csi_len);        // copy csi to the buffer
             len += csi_len;
         }
-        memcpy(tx_buf+len,payload_buf_addr, payload_len); // copy payload to the buffer
+        
+        memcpy(tx_buf+len,payload_buf_addr, payload_len);   // copy payload to the buffer
         len += payload_len;
-        memcpy(tx_buf+len,&len, 2);                       // record how many bytes we copy 
+        
+        memcpy(tx_buf+len,&len, 2);                         // record how many bytes we copy 
         len += 2;
-        copy_to_user(user_buf,tx_buf,len);                // COPY
+        
+        copy_to_user(user_buf,tx_buf,len);                  // COPY
         
         csi_tail = (csi_tail+1) & 0x0000000F;               // delete the buffer 
         return len;
-    }else
-    {
+    }else{
         return 0;
     }
-
 }
 
 static ssize_t csi_write(struct file *file, const char __user *user_buf,
 			     size_t count, loff_t *ppos)
 {
-    u_int8_t data_rate;
-
-    copy_from_user(rx_buf,user_buf,count);
-
-    data_rate = rx_buf[1];
-    printk(KERN_ALERT "debug_csi:data num: %d, data_rate we read: %02x\n",count,data_rate);
-    if (data_rate >= 0x80 && data_rate <= 0x97){
-        set_rate = 1;
-        set11n_rate = data_rate;
-    }
-    if (data_rate == 0xAA)
-        set_rate = 0;
-
+    printk(KERN_ALERT "debug_csi: csi write!\n");
 	return 0;
 }
 
-
-
-//Record payload of the received packet
 void csi_record_payload(void* data, u_int16_t data_len)
 {
     struct ath9k_csi* csi;
@@ -245,13 +227,11 @@ void csi_record_payload(void* data, u_int16_t data_len)
         csi = (struct ath9k_csi*)&csi_buf[csi_head];
         memcpy((void*)(csi->payload_buf),data, data_len);           // copy the payload
         csi->payload_len = data_len;                                // record the payload length (bytes)
-
         csi_valid = 1;
     }
 }
 EXPORT_SYMBOL(csi_record_payload);
 
-//Record the status of the packet
 void csi_record_status(struct ath_hw *ah, struct ath_rx_status *rxs, struct ar9003_rxs *rxsp,void* data)
 {
     struct ath9k_csi* csi;
@@ -263,13 +243,11 @@ void csi_record_status(struct ath_hw *ah, struct ath_rx_status *rxs, struct ar90
     u_int8_t  rx_hw_upload_data_valid;
     u_int8_t  rx_hw_upload_data_type;
     
-    /* some parameters about the hardware upload data*/ 
     rx_hw_upload_data             = (rxsp->status2 & AR_hw_upload_data) ? 1 : 0;
     rx_not_sounding               = (rxsp->status4 & AR_rx_not_sounding) ? 1 : 0;
     rx_hw_upload_data_valid       = (rxsp->status4 & AR_hw_upload_data_valid) ? 1 : 0;
     rx_hw_upload_data_type        = MS(rxsp->status11, AR_hw_upload_data_type);
    
-    /* filter out some packets without CSI value (e.g., the beacon)*/
     if(rxs->rs_phyerr == 0 && rx_hw_upload_data == 0 &&
                 rx_hw_upload_data_valid == 0 && rx_hw_upload_data_type == 0){
         return;
@@ -319,12 +297,12 @@ void csi_record_status(struct ath_hw *ah, struct ath_rx_status *rxs, struct ar90
          * NOTE: when the packet is received with error
          * The antenna number value is not correct
          */
-        csi->pkt_status.nc        = (int) (rxs->rs_datalen * BITS_PER_BYTE) /
+        csi->pkt_status.nc = (int) (rxs->rs_datalen * BITS_PER_BYTE) /
                         (int) (BITS_PER_COMPLEX_SYMBOL * csi->pkt_status.nr * csi->pkt_status.num_tones);
        
         /* copy the csi value to the allocated csi buffer */
-        if ( rxs->rs_datalen >0 && rx_hw_upload_data == 1 &&
-                rx_hw_upload_data_valid == 1 && rx_hw_upload_data_type == 1){
+        if ( rxs->rs_datalen >0 && rx_hw_upload_data == 1 && rx_hw_upload_data_valid == 1 
+                && rx_hw_upload_data_type == 1){
             csi->pkt_status.csi_len = rxs->rs_datalen;
             memcpy((void*)(csi->csi_buf),data,rxs->rs_datalen);
         }else {
@@ -332,28 +310,18 @@ void csi_record_status(struct ath_hw *ah, struct ath_rx_status *rxs, struct ar90
         }
         
         csi_valid = 0;                                  // update 
-        csi_head = (csi_head + 1) & 0x0000000F;
+        csi_head  = (csi_head + 1) & 0x0000000F;
 
         wake_up_interruptible(&csi_queue);              // wake up waiting queue 
     }
-    
 }
 EXPORT_SYMBOL(csi_record_status);
 
-int check_status(void){
-/*    if (set_rate == 1)
-        return set11n_rate;
-    else 
-        return 0;
-*/
-   return set_rate;
-}
-EXPORT_SYMBOL(check_status);
 
 module_init(csi_init);
 module_exit(csi_exit);
 
 MODULE_AUTHOR("YAXIONG XIE");
-MODULE_LICENSE("GPL");
+MODULE_LICENSE("Apache");
 MODULE_DESCRIPTION("CSI EXTRACTION");
 

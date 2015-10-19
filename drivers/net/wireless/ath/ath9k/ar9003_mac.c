@@ -31,11 +31,8 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
 	int checksum = 0;
 	u32 val, ctl12, ctl17;
 	u8 desc_len;
-    u8 rate1,rate2,rate3,rate4;
+    u_int8_t rate1,rate2,rate3,rate4;
     
-    //u_int8_t set11n_rate;
-    int set11n_rate;
-
 	desc_len = ((AR_SREV_9462(ah) || AR_SREV_9565(ah)) ? 0x18 : 0x17);
 
 	val = (ATHEROS_VENDOR_ID << AR_DescId_S) |
@@ -73,7 +70,6 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
 	ACCESS_ONCE(ads->ctl10) = checksum;
 
 	if (i->is_first || i->is_last) {
-
 		ACCESS_ONCE(ads->ctl13) = set11nTries(i->rates, 0)
 			| set11nTries(i->rates, 1)
 			| set11nTries(i->rates, 2)
@@ -85,30 +81,22 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
 			| set11nRate(i->rates, 1)
 			| set11nRate(i->rates, 2)
 			| set11nRate(i->rates, 3);
-
-        set11n_rate = check_status();
-
-        if (set11n_rate){        
-            if (SM(i->type, AR_FrameType) == 0){
-        	    ads->ctl14 = ((ads->ctl14 & 0xffffff00) | (set11n_rate & 0x00000080));
-		    //printk(" Rate is set, set11n_rate is %02x \n",set11n_rate);
-		    printk(" Rate is set\n");
-		}
-        }
-        
-        
-        rate1 = (ads->ctl14 >> 24) & 0xff;
-        rate2 = (ads->ctl14 >> 16) & 0xff;
-        rate3 = (ads->ctl14 >> 8)  & 0xff;
-        rate4 = (ads->ctl14 >> 0)  & 0xff;
-
-        //printk(" Tx data rate1: %02x | rate2: %02x | rate3: %02x | rate4: %02x\n\n",rate1,rate2,rate3,rate4);
 	} else {
 		ACCESS_ONCE(ads->ctl13) = 0;
 		ACCESS_ONCE(ads->ctl14) = 0;
 	}
 
-	ads->ctl20 = 0;
+    rate1 = (ads->ctl14 >> 24) & 0xff;
+    rate2 = (ads->ctl14 >> 16) & 0xff;
+    rate3 = (ads->ctl14 >> 8)  & 0xff;
+    rate4 = (ads->ctl14 >> 0)  & 0xff;
+
+    if ( rate4 > 0x80){
+	    ACCESS_ONCE(ads->ctl19) &= ~AR_Not_Sounding;
+    }else{
+	    ACCESS_ONCE(ads->ctl19) &= AR_Not_Sounding;
+    }
+    ads->ctl20 = 0;
 	ads->ctl21 = 0;
 	ads->ctl22 = 0;
 	ads->ctl23 = 0;
@@ -175,8 +163,6 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
 		| set11nRateFlags(i->rates, 2)
 		| set11nRateFlags(i->rates, 3)
 		| SM(i->rtscts_rate, AR_RTSCTSRate);
-
-	ACCESS_ONCE(ads->ctl19) = ~AR_Not_Sounding;
 
 	ACCESS_ONCE(ads->ctl20) = SM(i->txpower[1], AR_XmitPower1);
 	ACCESS_ONCE(ads->ctl21) = SM(i->txpower[2], AR_XmitPower2);
