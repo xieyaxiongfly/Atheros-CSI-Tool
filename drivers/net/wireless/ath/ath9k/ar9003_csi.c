@@ -297,7 +297,7 @@ void csi_record_status(struct ath_hw *ah, struct ath_rx_status *rxs, struct ar90
          */
         csi->pkt_status.nc = (int) (rxs->rs_datalen * BITS_PER_BYTE) /
                         (int) (BITS_PER_COMPLEX_SYMBOL * csi->pkt_status.nr * csi->pkt_status.num_tones);
-       
+        printk("bebug_csi: nr is: %d, nc is %d   \n\n",csi->pkt_status.nr,csi->pkt_status.nc); 
         /* copy the csi value to the allocated csi buffer */
         if ( rxs->rs_datalen >0 && rx_hw_upload_data == 1 && rx_hw_upload_data_valid == 1 
                 && rx_hw_upload_data_type == 1){

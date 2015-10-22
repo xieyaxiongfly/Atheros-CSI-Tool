@@ -31,6 +31,15 @@
 #define AR_hw_upload_data_type      0x06000000
 #define AR_hw_upload_data_type_S    25
 
+#define AR_xmit_data_tries0   0x000f0000
+#define AR_xmit_data_tries0_S 16
+#define AR_xmit_data_tries1   0x00f00000
+#define AR_xmit_data_tries1_S 20
+#define AR_xmit_data_tries2   0x0f000000
+#define AR_xmit_data_tries2_S 24
+#define AR_xmit_data_tries3   0xf0000000
+#define AR_xmit_data_tries3_S 28
+
 struct csi_pkt_status {
     u_int64_t   tstamp;      /* h/w assigned timestamp */
     u_int16_t   csi_len;     /* csi length */

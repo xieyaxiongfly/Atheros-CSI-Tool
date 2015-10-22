@@ -91,23 +91,9 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
     rate3 = (ads->ctl14 >> 8)  & 0xff;
     rate4 = (ads->ctl14 >> 0)  & 0xff;
 
-    if ( rate1 > 0x80){
-	    //ACCESS_ONCE(ads->ctl19) &= ~(AR_Not_Sounding | AR_ness);
+    if ( rate1 > 0x80 | rate2 > 0x80 | rate3 > 0x80){
 	    ACCESS_ONCE(ads->ctl19) = 0;
-    }else{
-	    //ACCESS_ONCE(ads->ctl19) &= AR_Not_Sounding;
-	    ACCESS_ONCE(ads->ctl19) = AR_Not_Sounding;
-    }
-    if ( rate2 > 0x80){
-	    //ACCESS_ONCE(ads->ctl19) &= ~(AR_Not_Sounding | AR_ness);
-	    ACCESS_ONCE(ads->ctl19) = 0;
-    }else{
-	    //ACCESS_ONCE(ads->ctl19) &= AR_Not_Sounding;
-	    ACCESS_ONCE(ads->ctl19) = AR_Not_Sounding;
-    }
-    if ( rate3 > 0x80){
-	    //ACCESS_ONCE(ads->ctl19) &= ~(AR_Not_Sounding | AR_ness);
-	    ACCESS_ONCE(ads->ctl19) = 0;
+        ads->ctl13 &= ~(AR_xmit_data_tries1 | AR_xmit_data_tries2 | AR_xmit_data_tries3);
     }else{
 	    //ACCESS_ONCE(ads->ctl19) &= AR_Not_Sounding;
 	    ACCESS_ONCE(ads->ctl19) = AR_Not_Sounding;
