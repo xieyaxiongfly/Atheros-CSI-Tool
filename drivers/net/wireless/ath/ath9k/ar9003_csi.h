@@ -20,9 +20,12 @@
 #define DBG_CSI(fmt, args...) printk(fmt,## args)
 #define AR_rx_ness                  0x00000060
 #define AR_rx_ness_S                5
+#define AR_ness                     0xc0000000 
+#define AR_ness_S                   30
 #define AR_hw_upload_data           0x00400000
 #define AR_hw_upload_data_S         22
 #define AR_rx_not_sounding          0x00000010
+#define AR_not_sounding             0x20000000
 #define AR_hw_upload_data_valid     0x00000080
 #define AR_hw_upload_data_valid_S   7  
 #define AR_hw_upload_data_type      0x06000000

@@ -91,10 +91,33 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
     rate3 = (ads->ctl14 >> 8)  & 0xff;
     rate4 = (ads->ctl14 >> 0)  & 0xff;
 
-    if ( rate4 > 0x80){
-	    ACCESS_ONCE(ads->ctl19) &= ~AR_Not_Sounding;
+    if ( rate1 > 0x80){
+	    //ACCESS_ONCE(ads->ctl19) &= ~(AR_Not_Sounding | AR_ness);
+	    ACCESS_ONCE(ads->ctl19) = 0;
     }else{
-	    ACCESS_ONCE(ads->ctl19) &= AR_Not_Sounding;
+	    //ACCESS_ONCE(ads->ctl19) &= AR_Not_Sounding;
+	    ACCESS_ONCE(ads->ctl19) = AR_Not_Sounding;
+    }
+    if ( rate2 > 0x80){
+	    //ACCESS_ONCE(ads->ctl19) &= ~(AR_Not_Sounding | AR_ness);
+	    ACCESS_ONCE(ads->ctl19) = 0;
+    }else{
+	    //ACCESS_ONCE(ads->ctl19) &= AR_Not_Sounding;
+	    ACCESS_ONCE(ads->ctl19) = AR_Not_Sounding;
+    }
+    if ( rate3 > 0x80){
+	    //ACCESS_ONCE(ads->ctl19) &= ~(AR_Not_Sounding | AR_ness);
+	    ACCESS_ONCE(ads->ctl19) = 0;
+    }else{
+	    //ACCESS_ONCE(ads->ctl19) &= AR_Not_Sounding;
+	    ACCESS_ONCE(ads->ctl19) = AR_Not_Sounding;
+    }
+    if ( rate4 > 0x80){
+	    //ACCESS_ONCE(ads->ctl19) &= ~(AR_Not_Sounding | AR_ness);
+	    ACCESS_ONCE(ads->ctl19) = 0;
+    }else{
+	    //ACCESS_ONCE(ads->ctl19) &= AR_Not_Sounding;
+	    ACCESS_ONCE(ads->ctl19) = AR_Not_Sounding;
     }
     ads->ctl20 = 0;
 	ads->ctl21 = 0;
