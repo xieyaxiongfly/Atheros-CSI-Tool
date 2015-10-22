@@ -163,8 +163,9 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
 	ACCESS_ONCE(ads->ctl21) = SM(i->txpower[2], AR_XmitPower2);
 	ACCESS_ONCE(ads->ctl22) = SM(i->txpower[3], AR_XmitPower3);
 
+    printk("csi_debug: is the first? %d\n",i->is_first);
+    printk("csi_debug: is the last?  %d\n",i->is_last);
     if ( rate1 >= 0x80 || rate2 >= 0x80 || rate3 >= 0x80){
-        printk("debug_csi: disable other tries\n");
 	    ACCESS_ONCE(ads->ctl19) = 0;
         ACCESS_ONCE(ads->ctl13) &= ~(AR_xmit_data_tries1 | AR_xmit_data_tries2 | AR_xmit_data_tries3);
 	    ACCESS_ONCE(ads->ctl20) &= 0x3f000000;
