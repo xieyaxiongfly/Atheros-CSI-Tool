@@ -91,21 +91,6 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
     rate3 = (ads->ctl14 >> 8)  & 0xff;
     rate4 = (ads->ctl14 >> 0)  & 0xff;
 
-    if ( rate1 >= 0x80 || rate2 >= 0x80 || rate3 >= 0x80){
-        printk("debug_csi: disable other tries\n");
-	    ACCESS_ONCE(ads->ctl19) = 0;
-        ads->ctl13 &= ~(AR_xmit_data_tries1 | AR_xmit_data_tries2 | AR_xmit_data_tries3);
-    }else{
-	    //ACCESS_ONCE(ads->ctl19) &= AR_Not_Sounding;
-	    ACCESS_ONCE(ads->ctl19) = AR_Not_Sounding;
-    }
-    if ( rate4 >= 0x80){
-	    //ACCESS_ONCE(ads->ctl19) &= ~(AR_Not_Sounding | AR_ness);
-	    ACCESS_ONCE(ads->ctl19) = 0;
-    }else{
-	    //ACCESS_ONCE(ads->ctl19) &= AR_Not_Sounding;
-	    ACCESS_ONCE(ads->ctl19) = AR_Not_Sounding;
-    }
     ads->ctl20 = 0;
 	ads->ctl21 = 0;
 	ads->ctl22 = 0;
@@ -177,6 +162,22 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
 	ACCESS_ONCE(ads->ctl20) = SM(i->txpower[1], AR_XmitPower1);
 	ACCESS_ONCE(ads->ctl21) = SM(i->txpower[2], AR_XmitPower2);
 	ACCESS_ONCE(ads->ctl22) = SM(i->txpower[3], AR_XmitPower3);
+
+    if ( rate1 >= 0x80 || rate2 >= 0x80 || rate3 >= 0x80){
+        printk("debug_csi: disable other tries\n");
+	    ACCESS_ONCE(ads->ctl19) = 0;
+        ACCESS_ONCE(ads->ctl13) &= ~(AR_xmit_data_tries1 | AR_xmit_data_tries2 | AR_xmit_data_tries3);
+	    ACCESS_ONCE(ads->ctl20) &= 0x3f000000;
+	    ACCESS_ONCE(ads->ctl21) &= 0x3f000000;
+	    ACCESS_ONCE(ads->ctl22) &= 0x3f000000;
+    }else{
+	    ACCESS_ONCE(ads->ctl19) = AR_Not_Sounding;
+    }
+    if ( rate4 >= 0x80){
+	    ACCESS_ONCE(ads->ctl19) = 0;
+    }else{
+	    ACCESS_ONCE(ads->ctl19) = AR_Not_Sounding;
+    }
 }
 
 static u16 ar9003_calc_ptr_chksum(struct ar9003_txc *ads)

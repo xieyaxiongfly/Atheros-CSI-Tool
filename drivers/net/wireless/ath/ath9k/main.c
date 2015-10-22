@@ -2116,7 +2116,6 @@ static int ath9k_tx_last_beacon(struct ieee80211_hw *hw)
 		bf = avp->av_bcbuf;
 		if (!bf || !bf->bf_mpdu)
 			goto skip;
-        printk("debug_csi: we are called in tx_last_beacon\n");
 		status = ath9k_hw_txprocdesc(ah, bf->bf_desc, &ts);
 		if (status == -EINPROGRESS)
 			goto skip;
