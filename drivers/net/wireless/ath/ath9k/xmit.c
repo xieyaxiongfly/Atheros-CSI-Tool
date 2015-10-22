@@ -2681,7 +2681,8 @@ static void ath_tx_processq(struct ath_softc *sc, struct ath_txq *txq)
 
 		lastbf = bf->bf_lastbf;
 		ds = lastbf->bf_desc;
-
+        
+        printk(" we are called in processq\n");
 		memset(&ts, 0, sizeof(ts));
 		status = ath9k_hw_txprocdesc(ah, ds, &ts);
 		if (status == -EINPROGRESS)
@@ -2736,7 +2737,7 @@ void ath_tx_edma_tasklet(struct ath_softc *sc)
 	for (;;) {
 		if (test_bit(ATH_OP_HW_RESET, &common->op_flags))
 			break;
-
+        printk("debug_csi: we are called in ath_tx_edma_tasklet\n");
 		status = ath9k_hw_txprocdesc(ah, NULL, (void *)&ts);
 		if (status == -EINPROGRESS)
 			break;
