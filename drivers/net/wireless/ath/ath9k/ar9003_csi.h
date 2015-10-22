@@ -1,17 +1,15 @@
 /*
  * =====================================================================================
- *
  *       Filename:  ar003_csi.h
  *
  *    Description:  ar003_csi data structure definiation
- *
  *        Version:  1.0
  *
  *         Author:  Yaxiong Xie 
  *         Email :  <xieyaxiongfly@gmail.com>
  *   Organization:  WANS group @ Nanyang Technological University 
- *   Copyright (c) Yaxiong Xie <xieyaxiongfly@gmail.com>
  *
+ *   Copyright (c) Yaxiong Xie <xieyaxiongfly@gmail.com>
  * =====================================================================================
  */
 
@@ -20,14 +18,15 @@
 #include "ar9003_mac.h"
 
 #define DBG_CSI(fmt, args...) printk(fmt,## args)
-
-#define AR_hw_upload_data     0x00400000
-#define AR_hw_upload_data_S   22
-#define AR_rx_not_sounding    0x00000010
-#define AR_hw_upload_data_valid    0x00000080
-#define AR_hw_upload_data_valid_S  7  
-#define AR_hw_upload_data_type 0x06000000
-#define AR_hw_upload_data_type_S   25
+#define AR_rx_ness                  0x00000060
+#define AR_rx_ness_S                5
+#define AR_hw_upload_data           0x00400000
+#define AR_hw_upload_data_S         22
+#define AR_rx_not_sounding          0x00000010
+#define AR_hw_upload_data_valid     0x00000080
+#define AR_hw_upload_data_valid_S   7  
+#define AR_hw_upload_data_type      0x06000000
+#define AR_hw_upload_data_type_S    25
 
 struct csi_pkt_status {
     u_int64_t   tstamp;      /* h/w assigned timestamp */

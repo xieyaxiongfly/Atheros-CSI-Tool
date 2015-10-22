@@ -1,17 +1,15 @@
 /*
  * =====================================================================================
- *
  *       Filename:  ath9k_csi.c
  *
  *    Description:  extrac csi and data together from hardware
- *
  *        Version:  1.0
  *
  *         Author:  Yaxiong Xie 
- *         Email :  xieyaxiongfly@gmail.com 
+ *         Email :  <xieyaxiongfly@gmail.com>
  *   Organization:  WANDS group @ Nanyang Technological University 
- *   Copyright (c) Yaxiong Xie <xieyaxiongfly@gmail.com>
  *
+ *   Copyright (c) Yaxiong Xie <xieyaxiongfly@gmail.com>
  * =====================================================================================
  */
 
@@ -322,6 +320,6 @@ module_init(csi_init);
 module_exit(csi_exit);
 
 MODULE_AUTHOR("YAXIONG XIE");
-MODULE_LICENSE("Apache");
+MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("CSI EXTRACTION");
 

@@ -494,7 +494,12 @@ int ath9k_hw_process_rxdesc_edma(struct ath_hw *ah, struct ath_rx_status *rxs,
 {
 	struct ar9003_rxs *rxsp = (struct ar9003_rxs *) buf_addr;
 	unsigned int phyerr;
-    u_int8_t rx_not_sounding;
+    u_int8_t  rx_Ness;
+    u_int8_t  rx_not_sounding;
+    u_int8_t  rx_hw_upload_data;
+    u_int8_t  rx_hw_upload_data_valid;
+    u_int8_t  rx_hw_upload_data_type;
+
 	void *data_addr;
     u_int16_t data_len;
 
@@ -599,26 +604,32 @@ int ath9k_hw_process_rxdesc_edma(struct ath_hw *ah, struct ath_rx_status *rxs,
     data_len = rxs->rs_datalen;
     data_addr = buf_addr + 48;
     
-    rx_not_sounding = (rxsp->status4 & AR_rx_not_sounding) ? 1 : 0;
-    if (rx_not_sounding == 0){
-        printk("debug_csi_sounding: is sounding frame !!!!!\n");
-        printk("bebug_csi_sounding: rate is %02x \n",rxs->rs_rate);
-        printk("bebug_csi_sounding: not_sounding is %d \n",rx_not_sounding);
-        printk("bebug_csi_sounding: datalen is %d \n\n",data_len);
+    rx_hw_upload_data             = (rxsp->status2 & AR_hw_upload_data) ? 1 : 0;
+    rx_not_sounding               = (rxsp->status4 & AR_rx_not_sounding) ? 1 : 0;
+    rx_hw_upload_data_valid       = (rxsp->status4 & AR_hw_upload_data_valid) ? 1 : 0;
+    rx_hw_upload_data_type        = MS(rxsp->status11, AR_hw_upload_data_type);
+    rx_Ness                       = MS(rxsp->status4, AR_rx_ness); 
+    if (rxs->rs_more == 1){
+        printk("debug_csi: the descriptor is associated with a data frame !!!!!\n");
+        printk("bebug_csi: rate is        %02x \n",rxs->rs_rate);
+        printk("bebug_csi: not_sounding is  %d \n",rx_not_sounding);
+        printk("bebug_csi: upload data  is  %d \n",rx_hw_upload_data);
+        printk("bebug_csi: up data valid is %d \n",rx_hw_upload_data_valid);
+        printk("bebug_csi: up data type is  %d \n",rx_hw_upload_data_type);
+        printk("bebug_csi: rx Ness      is  %d \n",rx_Ness);
+        printk("bebug_csi: datalen is      %d\n\n",data_len);
     }
     if (rxs->rs_rate >= 0x80){
-        printk("debug_csi_sounding: recevie frame with rate larger than 0x80 !!!!!!\n");
-        printk("bebug_csi_sounding: rate is %02x \n",rxs->rs_rate);
-        printk("bebug_csi_sounding: not_sounding is %d \n",rx_not_sounding);
-        printk("bebug_csi_sounding: datalen is %d \n\n",data_len);
+        printk("debug_csi: the descriptor is associated with a CSI matrix !!!!!\n");
+        printk("bebug_csi: rate is        %02x \n",rxs->rs_rate);
+        printk("bebug_csi: not_sounding is  %d \n",rx_not_sounding);
+        printk("bebug_csi: upload data  is  %d \n",rx_hw_upload_data);
+        printk("bebug_csi: up data valid is %d \n",rx_hw_upload_data_valid);
+        printk("bebug_csi: up data type is  %d \n",rx_hw_upload_data_type);
+        printk("bebug_csi: rx Ness      is  %d \n",rx_Ness);
+        printk("bebug_csi: datalen is      %d\n\n",data_len);
     }
 
-    if (data_len > 1000){
-        printk("debug_csi_sounding: recevie frame with length larger than 1000bytes !!!!!\n");
-        printk("bebug_csi_sounding: rate is %02x \n",rxs->rs_rate);
-        printk("bebug_csi_sounding: not_sounding is %d \n",rx_not_sounding);
-        printk("bebug_csi_sounding: datalen is %d \n \n",data_len);
-    }
 
     if (rxsp->status11 & AR_CRCErr){
         if (rxs->rs_rate >= 0x80){
