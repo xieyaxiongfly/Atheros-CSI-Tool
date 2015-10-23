@@ -831,7 +831,7 @@ static void ath9k_set_hw_capab(struct ath_softc *sc, struct ieee80211_hw *hw)
 		hw->flags |= IEEE80211_HW_SUPPORTS_PS;
 
 	if (sc->sc_ah->caps.hw_caps & ATH9K_HW_CAP_HT) {
-		hw->flags |= IEEE80211_HW_AMPDU_AGGREGATION;
+		//hw->flags |= IEEE80211_HW_AMPDU_AGGREGATION;
 
 		if (AR_SREV_9280_20_OR_LATER(ah))
 			hw->radiotap_mcs_details |=

@@ -7,9 +7,9 @@
  *
  *         Author:  Yaxiong Xie 
  *         Email :  <xieyaxiongfly@gmail.com>
- *   Organization:  WANS group @ Nanyang Technological University 
+ *   Organization:  WANDS group @ Nanyang Technological University 
  *
- *   Copyright (c) Yaxiong Xie <xieyaxiongfly@gmail.com>
+ *   Copyright (c)  WANDS group @ Nanyang Technological University
  * =====================================================================================
  */
 
@@ -44,10 +44,10 @@ struct csi_pkt_status {
     u_int64_t   tstamp;      /* h/w assigned timestamp */
     u_int16_t   csi_len;     /* csi length */
     u_int16_t   channel;     /* receiving channel frequency */
-	u_int8_t	phyerr;	     /* phy error code */
+    u_int8_t	phyerr;	     /* phy error code */
     
     u_int8_t    noise;       /* noise floor */
-	u_int8_t	rate;	     /* h/w receive rate index */
+    u_int8_t	rate;	     /* h/w receive rate index */
     u_int8_t    ChanBW;      /* receiving channel bandwidth */
     u_int8_t    num_tones;   /* number of tones (subcarriers) */
     u_int8_t    nr;          /* number of receiving antennas */
@@ -63,7 +63,7 @@ struct csi_pkt_status {
 struct ath9k_csi {
     struct csi_pkt_status pkt_status;
     u_int8_t    csi_buf[2800];     //buffer for csi value, 3 antena, each with 114 subcarriers, real and imagine part
-    u_int8_t    payload_buf[1500]; //buffer for the payload
+    u_int8_t    payload_buf[1500]; //buffer for the payload, if you send payload larger than 1500Bytes, change it
     u_int16_t   payload_len;
 
 };

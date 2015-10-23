@@ -86,11 +86,6 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
 		ACCESS_ONCE(ads->ctl14) = 0;
 	}
 
-    rate1 = (ads->ctl14 >> 24) & 0xff;
-    rate2 = (ads->ctl14 >> 16) & 0xff;
-    rate3 = (ads->ctl14 >> 8)  & 0xff;
-    rate4 = (ads->ctl14 >> 0)  & 0xff;
-
     ads->ctl20 = 0;
 	ads->ctl21 = 0;
 	ads->ctl22 = 0;
@@ -163,8 +158,11 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
 	ACCESS_ONCE(ads->ctl21) = SM(i->txpower[2], AR_XmitPower2);
 	ACCESS_ONCE(ads->ctl22) = SM(i->txpower[3], AR_XmitPower3);
 
-    printk("csi_debug: is the first? %d\n",i->is_first);
-    printk("csi_debug: is the last?  %d\n",i->is_last);
+    rate1 = (ads->ctl14 >> 24) & 0xff;
+    rate2 = (ads->ctl14 >> 16) & 0xff;
+    rate3 = (ads->ctl14 >> 8)  & 0xff;
+    rate4 = (ads->ctl14 >> 0)  & 0xff;
+
     if ( rate1 >= 0x80 || rate2 >= 0x80 || rate3 >= 0x80){
 	    ACCESS_ONCE(ads->ctl19) = 0;
         ACCESS_ONCE(ads->ctl13) &= ~(AR_xmit_data_tries1 | AR_xmit_data_tries2 | AR_xmit_data_tries3);
@@ -506,14 +504,9 @@ int ath9k_hw_process_rxdesc_edma(struct ath_hw *ah, struct ath_rx_status *rxs,
 {
 	struct ar9003_rxs *rxsp = (struct ar9003_rxs *) buf_addr;
 	unsigned int phyerr;
-    u_int8_t  rx_Ness;
-    u_int8_t  rx_not_sounding;
-    u_int8_t  rx_hw_upload_data;
-    u_int8_t  rx_hw_upload_data_valid;
-    u_int8_t  rx_hw_upload_data_type;
 
 	void *data_addr;
-    u_int16_t data_len;
+    	u_int16_t data_len;
 
 	if ((rxsp->status11 & AR_RxDone) == 0)
 		return -EINPROGRESS;
@@ -616,33 +609,6 @@ int ath9k_hw_process_rxdesc_edma(struct ath_hw *ah, struct ath_rx_status *rxs,
     data_len = rxs->rs_datalen;
     data_addr = buf_addr + 48;
     
-    rx_hw_upload_data             = (rxsp->status2 & AR_hw_upload_data) ? 1 : 0;
-    rx_not_sounding               = (rxsp->status4 & AR_rx_not_sounding) ? 1 : 0;
-    rx_hw_upload_data_valid       = (rxsp->status4 & AR_hw_upload_data_valid) ? 1 : 0;
-    rx_hw_upload_data_type        = MS(rxsp->status11, AR_hw_upload_data_type);
-    rx_Ness                       = MS(rxsp->status4, AR_rx_ness); 
-    if (rxs->rs_more == 1){
-        printk("debug_csi: the descriptor is associated with a data frame !!!!!\n");
-        printk("bebug_csi: rate is        %02x \n",rxs->rs_rate);
-        printk("bebug_csi: not_sounding is  %d \n",rx_not_sounding);
-        printk("bebug_csi: upload data  is  %d \n",rx_hw_upload_data);
-        printk("bebug_csi: up data valid is %d \n",rx_hw_upload_data_valid);
-        printk("bebug_csi: up data type is  %d \n",rx_hw_upload_data_type);
-        printk("bebug_csi: rx Ness      is  %d \n",rx_Ness);
-        printk("bebug_csi: datalen is      %d\n\n",data_len);
-    }
-    if (rxs->rs_rate >= 0x80){
-        printk("debug_csi: the descriptor is associated with a CSI matrix !!!!!\n");
-        printk("bebug_csi: rate is        %02x \n",rxs->rs_rate);
-        printk("bebug_csi: not_sounding is  %d \n",rx_not_sounding);
-        printk("bebug_csi: upload data  is  %d \n",rx_hw_upload_data);
-        printk("bebug_csi: up data valid is %d \n",rx_hw_upload_data_valid);
-        printk("bebug_csi: up data type is  %d \n",rx_hw_upload_data_type);
-        printk("bebug_csi: rx Ness      is  %d \n",rx_Ness);
-        printk("bebug_csi: datalen is      %d\n\n",data_len);
-    }
-
-
     if (rxsp->status11 & AR_CRCErr){
         if (rxs->rs_rate >= 0x80){
             csi_record_payload(data_addr,data_len);
@@ -654,7 +620,7 @@ int ath9k_hw_process_rxdesc_edma(struct ath_hw *ah, struct ath_rx_status *rxs,
 
         if (rxs->rs_rate >= 0x80)
             csi_record_status(ah,rxs,rxsp,data_addr);
-	}
+ 	}
 
 	return 0;
 }
