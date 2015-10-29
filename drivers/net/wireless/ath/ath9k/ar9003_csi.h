@@ -62,6 +62,7 @@ struct csi_pkt_status {
 
 struct ath9k_csi {
     struct csi_pkt_status pkt_status;
+
     u_int8_t    csi_buf[2800];     //buffer for csi value, 3 antena, each with 114 subcarriers, real and imagine part
     u_int8_t    payload_buf[1500]; //buffer for the payload, if you send payload larger than 1500Bytes, change it
     u_int16_t   payload_len;

@@ -64,7 +64,6 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
 	checksum += (val = (i->buf_len[3] << AR_BufLen_S) & AR_BufLen);
 	ACCESS_ONCE(ads->ctl9) = val;
     
-     	//printk(" Tx data len1: %d | len2: %d | len3: %d | len4: %d\n",i->buf_len[0],i->buf_len[1],i->buf_len[2],i->buf_len[3]);
 
 	checksum = (u16) (((checksum & 0xffff) + (checksum >> 16)) & 0xffff);
 	ACCESS_ONCE(ads->ctl10) = checksum;
