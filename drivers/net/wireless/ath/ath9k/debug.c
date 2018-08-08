@@ -907,6 +907,89 @@ static const struct file_operations fops_regval = {
 	.llseek = default_llseek,
 };
 
+
+static ssize_t read_file_tx_chainmask(struct file *file,
+		  char __user *user_buf,
+		  size_t count, loff_t *ppos)
+{
+	struct ath_hw *ah = file->private_data;
+	char buf[8];
+	u8 len;
+
+	len = sprintf(buf, "%u\n", ah->txchainmask);
+	return simple_read_from_buffer(user_buf, count, ppos, buf, len);
+}
+
+static ssize_t write_file_tx_chainmask(struct file *file,
+		   const char __user *user_buf,
+		   size_t count, loff_t *ppos)
+{
+	struct ath_hw *ah = file->private_data;
+	u8 tx_chainmask;
+	char buf[8];
+	u8 len;
+
+	len = min(count, sizeof(buf) - 1);
+	if (copy_from_user(buf, user_buf, len))
+		return -EFAULT;
+
+	buf[len] = '\0';
+	if (kstrtou8(buf, 0, &tx_chainmask))
+		return -EINVAL;
+	ah->txchainmask = tx_chainmask;
+	ar9003_hw_set_chain_masks(ah,ah->rxchainmask,ah->txchainmask);
+	return count;
+}
+
+static const struct file_operations fops_tx_chainmask = {
+	.read = read_file_tx_chainmask,
+	.write = write_file_tx_chainmask,
+	.open = simple_open,
+	.owner = THIS_MODULE,
+	.llseek = default_llseek,
+};
+
+static ssize_t read_file_rx_chainmask(struct file *file,
+		  char __user *user_buf,
+		  size_t count, loff_t *ppos)
+{
+	struct ath_hw *ah = file->private_data;
+	char buf[8];
+	u8 len;
+
+	len = sprintf(buf, "%u\n", ah->rxchainmask);
+	return simple_read_from_buffer(user_buf, count, ppos, buf, len);
+}
+
+static ssize_t write_file_rx_chainmask(struct file *file,
+		   const char __user *user_buf,
+		   size_t count, loff_t *ppos)
+{
+	struct ath_hw *ah = file->private_data;
+	u8 rx_chainmask;
+	char buf[8];
+	u8 len;
+
+	len = min(count, sizeof(buf) - 1);
+	if (copy_from_user(buf, user_buf, len))
+		return -EFAULT;
+
+	buf[len] = '\0';
+	if (kstrtou8(buf, 0, &rx_chainmask))
+		return -EINVAL;
+	ah->rxchainmask = rx_chainmask;
+	ar9003_hw_set_chain_masks(ah,ah->rxchainmask,ah->txchainmask);
+	return count;
+}
+
+static const struct file_operations fops_rx_chainmask = {
+	.read = read_file_rx_chainmask,
+	.write = write_file_rx_chainmask,
+	.open = simple_open,
+	.owner = THIS_MODULE,
+	.llseek = default_llseek,
+};
+
 #define REGDUMP_LINE_SIZE	20
 
 static int open_file_regdump(struct inode *inode, struct file *file)
@@ -1342,10 +1425,10 @@ int ath9k_init_debug(struct ath_hw *ah)
 	ath9k_cmn_debug_recv(sc->debug.debugfs_phy, &sc->debug.stats.rxstats);
 	ath9k_cmn_debug_phy_err(sc->debug.debugfs_phy, &sc->debug.stats.rxstats);
 
-	debugfs_create_u8("rx_chainmask", S_IRUSR, sc->debug.debugfs_phy,
-			  &ah->rxchainmask);
-	debugfs_create_u8("tx_chainmask", S_IRUSR, sc->debug.debugfs_phy,
-			  &ah->txchainmask);
+	debugfs_create_file("rx_chainmask", S_IRWXU | S_IWUSR, sc->debug.debugfs_phy, ah,
+					    &fops_rx_chainmask);
+	debugfs_create_file("tx_chainmask", S_IRWXU | S_IWUSR, sc->debug.debugfs_phy, ah,
+				        &fops_tx_chainmask);
 	debugfs_create_file("ani", S_IRUSR | S_IWUSR,
 			    sc->debug.debugfs_phy, sc, &fops_ani);
 	debugfs_create_bool("paprd", S_IRUSR | S_IWUSR, sc->debug.debugfs_phy,
