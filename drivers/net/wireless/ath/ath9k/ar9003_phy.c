@@ -704,6 +704,7 @@ void ar9003_hw_set_chain_masks(struct ath_hw *ah, u8 rx, u8 tx)
 
 	REG_WRITE(ah, AR_SELFGEN_MASK, tx);
 }
+EXPORT_SYMBOL(ar9003_hw_set_chain_masks);
 
 /*
  * Override INI values with chip specific configuration.
