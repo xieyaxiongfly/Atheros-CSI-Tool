@@ -126,12 +126,6 @@ Contributions are welcome—especially:
 
 Please open an issue before large changes.
 
----
-
-## Credits
-- **Yaxiong Xie** — original developer & maintainer  
-- **Prof. Mo Li** — supervision and research direction (PhD advisor)
-
 If this project supports your research, starring the repo helps others discover it ⭐
 
 ---
