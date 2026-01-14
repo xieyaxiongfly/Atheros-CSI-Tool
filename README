@@ -1,7 +1,94 @@
-This is a tool for extracting CSI information from commercial Atheros WiFi NIC. 
+# Atheros-CSI-Tool (Academic Release)
+**A research-grade toolkit for extracting fine-grained Wi-Fi Channel State Information (CSI) from commodity Atheros 802.11n NICs (ath9k) on Linux.**
 
-Please visit our maintainance page http://pdcc.ntu.edu.sg/wands/Atheros/ for detailed infomration.
+> **Authorship / Origin**  
+> This tool was developed by **Yaxiong Xie** under the supervision of **Prof. Mo Li** (PhD advisor), WANDS group.
 
-If you want more details on how to use this tool, please request the documentation http://pdcc.ntu.edu.sg/wands/Atheros/install/install_info.html.
+🔗 **Project website (docs, setup guides, examples, citation info):** https://wands.hk/external/wifi/AtherosCSI/index.html  
+🔗 **User-space capture & parser tools:** https://github.com/xieyaxiongfly/Atheros-CSI-Tool-UserSpace-APP
 
-Change Log, we now support one transmitter multiple receivers at the same time. One packet transmitted can be simultaneously received by multiple receivers and the CSI will be calculated accordingly. More detail can be found from our maintainance page. http://pdcc.ntu.edu.sg/wands/Atheros/
+---
+
+## Overview
+Channel State Information (CSI) provides per-subcarrier complex channel responses at the PHY layer, enabling a broad class of research in:
+- **Wi-Fi sensing** (human activity recognition, respiration, gesture, tracking)
+- **Localization / channel analytics** (AoA/ToF-related processing, fingerprinting)
+- **Wireless measurement and debugging**
+- **Cross-layer studies** bridging PHY measurements and networking systems
+
+**Atheros-CSI-Tool** exposes CSI from off-the-shelf Atheros 802.11n chipsets via the open-source Linux driver stack (ath9k), enabling reproducible experiments on commodity platforms (PCs / embedded boards / routers).
+
+---
+
+## Key features (research-focused)
+- **Fine-grained CSI per packet**: complex-valued CSI across OFDM subcarriers, with antenna dimensions depending on MIMO configuration.
+- **Rich per-packet metadata** (varies by platform/config): timestamps, RSSI per chain, rate/MCS, payload, and driver-level info useful for controlled experiments.
+- **Commodity-friendly**: operates on widely available Atheros 802.11n NICs supported by `ath9k` without firmware hacking.
+- **Multiple receivers support**: one transmission can be captured by multiple receivers, each reporting its CSI stream, facilitating distributed measurement setups.
+- **Extensible workflow**: pair kernel-side CSI extraction with the provided user-space capture/parsing utilities for dataset logging and downstream processing.
+
+---
+
+## Supported / validated hardware
+The tool targets Atheros 802.11n chipsets supported by `ath9k`. Commonly validated chipsets include:
+- **AR9580**
+- **AR9590**
+- **AR9344**
+- **QCA9558**
+
+For practical device recommendations (router models, NIC cards), configuration notes, and known issues, see:
+https://wands.hk/external/wifi/AtherosCSI/index.html
+
+---
+
+## Getting started (recommended path)
+This repository contains kernel-side components for CSI extraction.  
+For end-to-end CSI logging and dataset generation, please follow the website documentation:
+
+1) **Read the documentation portal**  
+   https://wands.hk/external/wifi/AtherosCSI/index.html
+
+2) **Choose your platform guide**
+- **Ubuntu version** (PC/laptop/desktop): build + driver integration steps
+- **OpenWRT version** (routers): cross-compile / image integration steps
+
+3) **Use the user-space tools to capture & parse CSI streams**  
+   https://github.com/xieyaxiongfly/Atheros-CSI-Tool-UserSpace-APP
+
+> In most deployments, users first complete the driver/toolchain setup from the website, then use the user-space app to log CSI and export it into Matlab/Python-friendly formats.
+
+---
+
+## CSI format notes (for researchers)
+In OFDM Wi-Fi systems, CSI is typically represented as a complex tensor per received packet, e.g.:
+- 20 MHz: commonly **Ntx × Nrx × 56 subcarriers**
+- 40 MHz: commonly **Ntx × Nrx × 114 subcarriers**
+
+Exact dimensions and header fields depend on bandwidth / NIC / configuration.  
+Please refer to the website for details and examples:
+https://wands.hk/external/wifi/AtherosCSI/index.html
+
+
+---
+
+## Citation
+If you use Atheros-CSI-Tool in academic publications, please cite the tool page and any associated references listed there:
+
+https://wands.hk/external/wifi/AtherosCSI/index.html
+
+(If you’d like, add a BibTeX entry here; feel free to open an issue/PR and we can include an official BibTeX block.)
+
+---
+
+## Community & contributions
+We welcome contributions that improve:
+- chipset/platform coverage
+- documentation, troubleshooting, and reproducible experiment scripts
+- parsers, exporters, and dataset tooling in user-space
+
+Please open an issue for discussion before large changes.
+
+---
+
+If this project supports your research, starring the repo helps others discover it ⭐
+
