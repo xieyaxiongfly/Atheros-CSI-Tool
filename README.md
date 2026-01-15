@@ -1,8 +1,8 @@
 # Atheros-CSI-Tool
 **Research-grade Wi-Fi CSI extraction for commodity Atheros 802.11n (ath9k) NICs on Linux**
 
-[![Platform](https://img.shields.io/badge/platform-Linux-blue)](https://wands.hk/external/wifi/AtherosCSI/index.html)
-[![Driver](https://img.shields.io/badge/driver-ath9k-informational)](https://wands.hk/external/wifi/AtherosCSI/index.html)
+[![Platform](https://img.shields.io/badge/platform-Linux-blue)](https://wands.hk/AtherosCSI/index.html)
+[![Driver](https://img.shields.io/badge/driver-ath9k-informational)](https://wands.hk/AtherosCSI/index.html)
 [![License](https://img.shields.io/badge/license-GPL-green)](COPYING)
 
 > **Authorship / Origin**  
@@ -74,7 +74,7 @@ Validated chipsets (commonly used in the community):
 | QCA9558 | ✅ validated |
 
 For recommended NIC/router models and practical setup notes, see:  
-https://wands.hk/external/wifi/AtherosCSI/index.html
+https://wands.hk/AtherosCSI/index.html
 
 ---
 
@@ -83,7 +83,7 @@ This repository provides the **kernel-side components**. For end-to-end CSI logg
 follow the documentation portal:
 
 1. Read docs & pick your platform (Ubuntu / OpenWRT)  
-   https://wands.hk/external/wifi/AtherosCSI/index.html
+   https://wands.hk/AtherosCSI/index.html
 2. Install/build according to the website guide
 3. Use the user-space tools to capture/parse CSI  
    https://github.com/xieyaxiongfly/Atheros-CSI-Tool-UserSpace-APP
